@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>مبینا 🤍 | برای تو</title>
+<meta name="description" content="یه سایت کوچیک برای مبینا، از طرف آرلی 🤍🍜">
+<meta property="og:title" content="مبینا 🤍">
+<meta property="og:image" content="https://arliweb3.github.io/mobina/happy.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;800&display=swap" rel="stylesheet">
+<style>
+  :root { --pink:#ff8fb1; --deep:#e84a7f; --soft:#ffe4ee; --white:#fffafc; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'Vazirmatn',sans-serif; height:100vh; overflow:hidden; color:#5a2a3c;
+    background:radial-gradient(circle at 30% 20%, var(--white), var(--soft) 60%, #ffd1e1);
+    display:flex; align-items:center; justify-content:center; touch-action:none; transition:background 1s; }
+  body.gloomy { background:radial-gradient(circle at 30% 20%, #f4f1f4, #e3dbe2 60%, #d6cbd4); }
+  .heart { position:fixed; bottom:-40px; pointer-events:none; animation:rise linear forwards; opacity:.75; z-index:0; }
+  @keyframes rise { to { transform:translateY(-115vh) rotate(25deg); opacity:0; } }
+  .rain { position:fixed; top:-20px; width:2px; height:16px; background:rgba(150,140,170,.5); border-radius:2px;
+    pointer-events:none; animation:fall linear forwards; z-index:0; }
+  @keyframes fall { to { transform:translateY(110vh); } }
+
+  #progress { position:fixed; top:0; right:0; height:5px; width:0; z-index:5;
+    background:linear-gradient(90deg,var(--deep),var(--pink)); transition:width .6s; }
+  .screen { position:absolute; width:min(94vw,480px); max-height:96vh; overflow-y:auto; text-align:center; opacity:0; z-index:2;
+    transform:translateY(20px) scale(.97); transition:all .7s ease; pointer-events:none; }
+  .screen.active { opacity:1; transform:none; pointer-events:auto; }
+  .card { background:rgba(255,255,255,.82); backdrop-filter:blur(10px); border-radius:28px;
+    padding:26px 20px; box-shadow:0 20px 60px rgba(232,74,127,.25); border:1px solid #fff; }
+  h1 { font-weight:800; color:var(--deep); font-size:1.5rem; margin-bottom:10px; }
+  p { font-weight:300; line-height:2; font-size:1.05rem; }
+  .small { font-size:.9rem; opacity:.75; }
+  button { font-family:inherit; font-size:1rem; font-weight:500; border:none; cursor:pointer;
+    padding:11px 24px; border-radius:50px; margin:7px 5px; transition:transform .2s; }
+  button:active { transform:scale(.95); }
+  .primary { background:linear-gradient(135deg,var(--pink),var(--deep)); color:#fff; box-shadow:0 8px 20px rgba(232,74,127,.4); }
+  .ghost { background:#fff; color:var(--deep); border:1.5px solid var(--pink); }
+  .hidden { display:none !important; }
+
+  /* عکس‌ها */
+  .pic { width:100%; max-width:300px; border-radius:22px; display:block; margin:4px auto 14px;
+    border:3px solid #fff; box-shadow:0 12px 30px rgba(232,74,127,.3); }
+  .pic.sad { filter:saturate(.85); animation:sob 2.6s ease-in-out infinite; box-shadow:0 12px 30px rgba(120,110,140,.3); }
+  @keyframes sob { 50% { transform:translateY(3px) rotate(.6deg); } }
+  .pic.happy { animation:pop 1s cubic-bezier(.2,1.6,.4,1) both, sway 4s 1s ease-in-out infinite; max-width:340px; }
+  @keyframes pop { from { transform:scale(.3) rotate(-8deg); opacity:0; } to { transform:none; opacity:1; } }
+  @keyframes sway { 50% { transform:translateY(-6px) rotate(-1deg); } }
+
+  /* نامه */
+  .envelope { width:190px; height:125px; margin:10px auto 22px; position:relative; cursor:pointer;
+    background:var(--pink); border-radius:10px; animation:pulse 1.8s infinite; }
+  .envelope::before { content:''; position:absolute; inset:0; border-radius:10px; background:var(--deep);
+    clip-path:polygon(0 0,50% 55%,100% 0); transition:transform .6s; transform-origin:top; }
+  .envelope.open::before { transform:rotateX(180deg); }
+  .envelope span { position:absolute; left:50%; top:55%; transform:translate(-50%,-50%); font-size:2rem; }
+  @keyframes pulse { 50% { transform:scale(1.05); } }
+
+  /* تایپ */
+  #typed { min-height:190px; white-space:pre-line; }
+  .cursor { display:inline-block; width:2px; height:1.1em; background:var(--deep); vertical-align:middle; animation:blink .8s infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+
+  /* کارت‌ها */
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin:14px 0; }
+  .flip { aspect-ratio:3/4; perspective:600px; cursor:pointer; }
+  .flip-inner { position:relative; width:100%; height:100%; transition:transform .6s; transform-style:preserve-3d; }
+  .flip.done .flip-inner { transform:rotateY(180deg); }
+  .face { position:absolute; inset:0; border-radius:14px; backface-visibility:hidden;
+    display:flex; align-items:center; justify-content:center; padding:5px; font-size:.75rem; line-height:1.6; }
+  .front { background:linear-gradient(135deg,var(--pink),var(--deep)); color:#fff; font-size:1.6rem; }
+  .back { background:#fff; border:1.5px solid var(--pink); transform:rotateY(180deg); font-weight:500; }
+
+  /* بازی */
+  #game { position:relative; height:320px; border-radius:20px; overflow:hidden; margin:10px 0;
+    background:linear-gradient(#fff,var(--soft)); border:1.5px solid var(--pink); }
+  #basket { position:absolute; bottom:6px; font-size:2.6rem; transform:translateX(-50%); left:50%; }
+  .drop { position:absolute; top:-40px; font-size:1.8rem; }
+  .hud { display:flex; justify-content:space-between; font-weight:500; padding:0 6px; }
+
+  /* نودل */
+  .bowlwrap { position:relative; font-size:5rem; height:120px; margin:6px 0; }
+  #toppings { position:absolute; top:6px; left:50%; transform:translateX(-50%); font-size:1.6rem; letter-spacing:4px; }
+  .opts button { font-size:1.4rem; padding:9px 14px; }
+  .opts button.picked { background:var(--deep); color:#fff; }
+
+  /* کوییز */
+  #qopts button { display:block; width:100%; margin:8px 0; }
+  #qreply { min-height:34px; font-weight:500; color:var(--deep); margin-top:6px; }
+
+  /* خراشی */
+  .scratch { position:relative; width:280px; height:160px; margin:14px auto; border-radius:18px; overflow:hidden; }
+  .scratch .msg { position:absolute; inset:0; background:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:1.25rem; font-weight:800; color:var(--deep); padding:10px; border:1.5px solid var(--pink); border-radius:18px; }
+  #scratchCanvas { position:absolute; inset:0; cursor:pointer; touch-action:none; }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- ۱ نامه -->
+<section class="screen active" id="s1"><div class="card">
+  <h1>یه چیزی برات ساختم 🤍</h1>
+  <div class="envelope" id="env"><span>💌</span></div>
+  <p>روش بزن تا باز شه</p>
+  <p class="small">چند دقیقه وقت بذار، قول می‌دم ارزششو داشته باشه</p>
+</div></section>
+
+<!-- ۲ صحنه قهر -->
+<section class="screen" id="s2"><div class="card">
+  <h1>این روزا حال ما اینه... 🌧️</h1>
+  <img src="sad.jpg" alt="قهر" class="pic sad">
+  <p>تو قهری، منم دلم گرفته.</p>
+  <button class="primary hidden" id="next2">یه چیزی می‌خوام بگم...</button>
+</div></section>
+
+<!-- ۳ عذرخواهی -->
+<section class="screen" id="s3"><div class="card">
+  <h1>مبینای عزیزم</h1>
+  <p id="typed"></p>
+  <button class="primary hidden" id="next3">ادامه 🌸</button>
+</div></section>
+
+<!-- ۴ کارت‌ها -->
+<section class="screen" id="s4"><div class="card">
+  <h1>هشت چیز که تو تو دوست دارم</h1>
+  <p class="small">همه‌شون رو برگردون <span id="flipCount">0</span>/8</p>
+  <div class="grid" id="grid"></div>
+  <button class="primary hidden" id="next4">بریم بازی 🎮</button>
+</div></section>
+
+<!-- ۵ بازی -->
+<section class="screen" id="s5"><div class="card">
+  <h1>قلبامو بگیر 🩷</h1>
+  <p class="small">سبد رو بکش، ۱۲ تا قلب بگیر. مراقب 💔 باش!</p>
+  <div class="hud"><span>امتیاز: <b id="score">0</b></span><span>زمان: <b id="timer">25</b></span></div>
+  <div id="game"><div id="basket">🧺</div></div>
+  <button class="primary" id="startGame">شروع</button>
+  <button class="primary hidden" id="next5">ادامه 🍜</button>
+</div></section>
+
+<!-- ۶ نودل -->
+<section class="screen" id="s6"><div class="card">
+  <h1>نودل قرار اولمون رو بساز</h1>
+  <p class="small">سه تا چیز براش انتخاب کن</p>
+  <div class="bowlwrap"><div id="toppings"></div>🍜</div>
+  <div class="opts" id="opts"></div>
+  <p id="noodleMsg" class="hidden" style="margin-top:8px"></p>
+  <button class="primary hidden" id="next6">یه کوییز کوچیک 🎀</button>
+</div></section>
+
+<!-- ۷ کوییز -->
+<section class="screen" id="s7"><div class="card">
+  <h1 id="qtitle"></h1>
+  <p class="small" id="qnum"></p>
+  <div id="qopts"></div>
+  <p id="qreply"></p>
+</div></section>
+
+<!-- ۸ خراشی -->
+<section class="screen" id="s8"><div class="card">
+  <h1>یه حرف پنهون ✨</h1>
+  <p class="small">با انگشتت بخراشش</p>
+  <div class="scratch">
+    <div class="msg">دلم خیلی برات تنگ شده 🤍</div>
+    <canvas id="scratchCanvas" width="280" height="160"></canvas>
+  </div>
+  <button class="primary hidden" id="next8">و حالا سؤال آخر...</button>
+</div></section>
+
+<!-- ۹ درخواست موندن -->
+<section class="screen" id="s9"><div class="card">
+  <h1>پیشم می‌مونی؟</h1>
+  <p>با همه اشتباهام، می‌خوام دوباره کنار هم باشیم.<br>هر جوابی بدی، بهش احترام می‌ذارم.</p>
+  <button class="primary" id="yes">آره 🤍</button>
+  <button class="ghost" id="time">یه کم وقت می‌خوام</button>
+</div></section>
+
+<!-- ۱۰ آشتی -->
+<section class="screen" id="s10"><div class="card">
+  <h1 id="endTitle">آشتی 🍜🤍</h1>
+  <img src="happy.jpg" alt="نودل با هم" class="pic happy" id="happyPic">
+  <p id="endText"></p>
+</div></section>
+
+<script>
+/* ===== متن‌ها رو اینجا شخصی کن ===== */
+const apology = `می‌دونم یه جاهایی اشتباه کردم و ناراحتت کردم.
+بابتش واقعاً متأسفم.
+فاصله سخت بود، ولی تو برام ارزشش رو داشتی و داری.
+می‌خوام بهتر باشم، برای تو و برای خودمون.`;
+
+const reasons = ['خنده‌هات','صدات پشت تلفن','مهربونیت','وقتی حرصی میشی','عشقت به نودل 🍜','صورتی بودنت 🩷','اینکه هوامو داشتی','خودت، همینجوری که هستی'];
+
+const quiz = [
+  { q:'اولین قرارمون کجا باشه؟', a:['رستوران نودلی 🍜','کافه آروم ☕','قدم زدن زیر بارون 🌧️'], r:'هرجا تو باشی قبوله 🤍' },
+  { q:'من بیشتر شبیه کدومم؟', a:['یه خرس بامزه 🧸','یه گربه لجباز 🐱','یه پنگوئن باوفا 🐧'], r:'قبوله، ولی پنگوئنا تا آخر عمر با یه نفر می‌مونن 😌' },
+  { q:'اگه یه روز کامل با هم باشیم؟', a:['فیلم و پتو 🎬','سفر یهویی 🚗','فقط حرف زدن تا صبح 🌙'], r:'یادم می‌مونه، قول 🤙' }
+];
+/* ====================================== */
+
+const $ = id => document.getElementById(id);
+const steps = ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  $('progress').style.width = (steps.indexOf(id)/(steps.length-1))*100 + '%';
+}
+
+// پس‌زمینه: قلب یا بارون
+const hearts = ['🤍','💗','💕','🩷','🌸'];
+let mood = 'love';
+function spawnHeart(){
+  const h=document.createElement('span'); h.className='heart';
+  h.textContent=hearts[Math.random()*hearts.length|0];
+  h.style.left=Math.random()*100+'vw'; h.style.fontSize=14+Math.random()*20+'px';
+  h.style.animationDuration=6+Math.random()*6+'s';
+  document.body.appendChild(h); setTimeout(()=>h.remove(),12000);
+}
+function spawnRain(){
+  const r=document.createElement('span'); r.className='rain';
+  r.style.left=Math.random()*100+'vw'; r.style.animationDuration=.8+Math.random()*.7+'s';
+  document.body.appendChild(r); setTimeout(()=>r.remove(),1600);
+}
+setInterval(()=>{ if(mood==='love') spawnHeart(); else for(let i=0;i<3;i++) spawnRain(); },450);
+const burst=(n=30)=>{for(let i=0;i<n;i++)setTimeout(spawnHeart,i*40)};
+
+// ۱ → ۲ صحنه قهر
+$('env').onclick=function(){
+  this.classList.add('open');
+  setTimeout(()=>{
+    mood='rain'; document.body.classList.add('gloomy'); show('s2');
+    setTimeout(()=>$('next2').classList.remove('hidden'),2500);
+  },800);
+};
+
+// ۲ → ۳ عذرخواهی
+function typeText(el,text,done){
+  let i=0;
+  (function tick(){
+    el.innerHTML=text.slice(0,i)+'<span class="cursor"></span>';
+    if(i++<text.length) setTimeout(tick,text[i-1]==='\n'?450:50);
+    else { el.innerHTML=text; done&&done(); }
+  })();
+}
+$('next2').onclick=()=>{
+  show('s3');
+  typeText($('typed'),apology,()=>{
+    mood='love'; document.body.classList.remove('gloomy'); burst(20);
+    $('next3').classList.remove('hidden');
+  });
+};
+$('next3').onclick=()=>show('s4');
+
+// ۴ کارت‌ها
+let flipped=0;
+reasons.forEach(r=>{
+  const c=document.createElement('div'); c.className='flip';
+  c.innerHTML=`<div class="flip-inner"><div class="face front">🤍</div><div class="face back">${r}</div></div>`;
+  c.onclick=()=>{ if(c.classList.contains('done'))return; c.classList.add('done'); flipped++;
+    $('flipCount').textContent=flipped; if(flipped===reasons.length){ burst(20); $('next4').classList.remove('hidden'); } };
+  $('grid').appendChild(c);
+});
+$('next4').onclick=()=>show('s5');
+
+// ۵ بازی
+const game=$('game'), basket=$('basket');
+let score=0, playing=false, drops=[], spawner, clock;
+function moveBasket(e){
+  const r=game.getBoundingClientRect();
+  const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  basket.style.left=Math.max(20,Math.min(r.width-20,x))+'px';
+}
+game.addEventListener('pointermove',moveBasket);
+game.addEventListener('touchmove',e=>{e.preventDefault();moveBasket(e)},{passive:false});
+function spawnDrop(){
+  const d=document.createElement('div'); d.className='drop';
+  const bad=Math.random()<.2; d.textContent=bad?'💔':hearts[Math.random()*hearts.length|0];
+  d.dataset.bad=bad; d.style.left=Math.random()*(game.clientWidth-30)+'px';
+  game.appendChild(d); drops.push({el:d,y:-40,v:2+Math.random()*2.5});
+}
+function loop(){
+  if(!playing)return;
+  const b=basket.getBoundingClientRect();
+  drops=drops.filter(o=>{
+    o.y+=o.v; o.el.style.top=o.y+'px';
+    const r=o.el.getBoundingClientRect();
+    if(r.bottom>=b.top+10 && r.left<b.right && r.right>b.left){
+      score+=o.el.dataset.bad==='true'?-1:1; score=Math.max(0,score);
+      $('score').textContent=score; o.el.remove(); return false;
+    }
+    if(o.y>game.clientHeight){ o.el.remove(); return false; }
+    return true;
+  });
+  requestAnimationFrame(loop);
+}
+function endGame(){
+  playing=false; clearInterval(spawner); clearInterval(clock);
+  drops.forEach(o=>o.el.remove()); drops=[];
+  if(score>=12){ burst(40); $('startGame').classList.add('hidden'); $('next5').classList.remove('hidden'); $('timer').textContent='آفرین 🤍'; }
+  else { $('startGame').textContent='یه بار دیگه 😅'; $('startGame').classList.remove('hidden'); }
+}
+$('startGame').onclick=()=>{
+  score=0; $('score').textContent=0; let t=25; $('timer').textContent=t;
+  $('startGame').classList.add('hidden'); playing=true;
+  spawner=setInterval(spawnDrop,550);
+  clock=setInterval(()=>{ $('timer').textContent=--t; if(t<=0) endGame(); },1000);
+  loop();
+};
+$('next5').onclick=()=>show('s6');
+
+// ۶ نودل
+const tops=['🥚','🍤','🍄','🌽','🥦','🌶️','🧀','🥩'];
+let picked=[];
+tops.forEach(t=>{
+  const b=document.createElement('button'); b.className='ghost'; b.textContent=t;
+  b.onclick=()=>{
+    if(picked.includes(t)||picked.length>=3)return;
+    picked.push(t); b.classList.add('picked'); $('toppings').textContent=picked.join('');
+    if(picked.length===3){
+      $('noodleMsg').innerHTML=`نودل با ${picked.join(' ')} ثبت شد!<br>اولین بار که دیدمت، همینو برات می‌گیرم 🤍`;
+      $('noodleMsg').classList.remove('hidden'); $('next6').classList.remove('hidden'); burst(15);
+    }
+  };
+  $('opts').appendChild(b);
+});
+$('next6').onclick=()=>{ show('s7'); renderQ(0); };
+
+// ۷ کوییز
+function renderQ(i){
+  const item=quiz[i]; $('qtitle').textContent=item.q; $('qnum').textContent=`سؤال ${i+1} از ${quiz.length}`;
+  $('qreply').textContent=''; $('qopts').innerHTML='';
+  item.a.forEach(a=>{
+    const b=document.createElement('button'); b.className='ghost'; b.textContent=a;
+    b.onclick=()=>{
+      $('qopts').querySelectorAll('button').forEach(x=>x.disabled=true);
+      b.className='primary'; $('qreply').textContent=item.r;
+      setTimeout(()=> i+1<quiz.length ? renderQ(i+1) : (show('s8'), initScratch()), 1800);
+    };
+    $('qopts').appendChild(b);
+  });
+}
+
+// ۸ خراشی
+function initScratch(){
+  const cv=$('scratchCanvas'), ctx=cv.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,280,160); g.addColorStop(0,'#ff8fb1'); g.addColorStop(1,'#e84a7f');
+  ctx.fillStyle=g; ctx.fillRect(0,0,280,160);
+  ctx.fillStyle='#fff'; ctx.font='500 20px Vazirmatn'; ctx.textAlign='center'; ctx.fillText('اینجا رو بخراش 🤍',140,88);
+  ctx.globalCompositeOperation='destination-out';
+  let down=false, revealed=false;
+  const scratch=e=>{
+    if(!down)return; const r=cv.getBoundingClientRect();
+    ctx.beginPath(); ctx.arc(e.clientX-r.left,e.clientY-r.top,20,0,Math.PI*2); ctx.fill();
+    if(!revealed){
+      const d=ctx.getImageData(0,0,280,160).data; let clear=0;
+      for(let i=3;i<d.length;i+=16) if(d[i]===0) clear++;
+      if(clear/(d.length/16)>.5){ revealed=true; cv.style.transition='opacity .6s'; cv.style.opacity=0; burst(30);
+        $('next8').classList.remove('hidden'); }
+    }
+  };
+  cv.addEventListener('pointerdown',e=>{down=true;scratch(e)});
+  cv.addEventListener('pointermove',scratch);
+  window.addEventListener('pointerup',()=>down=false);
+}
+$('next8').onclick=()=>show('s9');
+
+// ۹ → ۱۰ آشتی
+$('yes').onclick=()=>{
+  $('endTitle').textContent='آشتی 🍜🤍';
+  $('endText').textContent='خیلی خوشحالم! این نودل رو بهت بدهکارم 🥹';
+  show('s10'); burst(80);
+};
+$('time').onclick=()=>{
+  $('endTitle').textContent='منتظرتم 🌸';
+  $('endText').textContent='هرچقدر لازمه صبر می‌کنم. این قرار نودلی هر وقت آماده بودی سر جاشه 🤍';
+  show('s10'); burst(25);
+};
+</script>
+</body>
+</html>
