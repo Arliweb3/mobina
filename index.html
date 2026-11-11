@@ -132,9 +132,10 @@
 <!-- ۵ بازی -->
 <section class="screen" id="s5"><div class="card">
   <h1>قلبامو بگیر 🩷</h1>
-  <p class="small">سبد رو بکش، ۱۲ تا قلب بگیر. مراقب 💔 باش!</p>
+  <p class="small">زندگیم دست توئه! حداقل ۱۲ تا قلب بگیر تا زنده بمونم. مراقب 💔 باش!</p>
   <div class="hud"><span>امتیاز: <b id="score">0</b></span><span>زمان: <b id="timer">25</b></span></div>
   <div id="game"><div id="basket">🧺</div></div>
+  <div id="fate" class="hidden"><img id="fateImg" class="pic" alt=""><p id="fateText" style="font-weight:500"></p></div>
   <button class="primary" id="startGame">شروع</button>
   <button class="primary hidden" id="next5">ادامه 🍜</button>
 </div></section>
@@ -190,12 +191,12 @@ const apology = `می‌دونم یه جاهایی اشتباه کردم و نا
 فاصله سخت بود، ولی تو برام ارزشش رو داشتی و داری.
 می‌خوام بهتر باشم، برای تو و برای خودمون.`;
 
-const reasons = ['خنده‌هات','صدات پشت تلفن','مهربونیت','وقتی حرصی میشی','عشقت به نودل 🍜','صورتی بودنت 🩷','اینکه هوامو داشتی','خودت، همینجوری که هستی'];
+const reasons = ['خنده‌هات','صدات پشت تلفن','مهربونیت','وقتی حرصی میشی','خنگ‌بازیات 🙈','خوشگل بودنت ✨','اینکه هوامو داشتی','خودت، همینجوری که هستی'];
 
 const quiz = [
-  { q:'اولین قرارمون کجا باشه؟', a:['رستوران نودلی 🍜','کافه آروم ☕','قدم زدن زیر بارون 🌧️'], r:'هرجا تو باشی قبوله 🤍' },
+  { q:'اولین قرارمون کجا باشه؟', a:['رستوران 🍽️','کافه ☕','بریم قدم بزنیم 🚶'], r:'هرجا تو باشی قبوله 🤍' },
   { q:'من بیشتر شبیه کدومم؟', a:['یه خرس بامزه 🧸','یه گربه لجباز 🐱','یه پنگوئن باوفا 🐧'], r:'قبوله، ولی پنگوئنا تا آخر عمر با یه نفر می‌مونن 😌' },
-  { q:'اگه یه روز کامل با هم باشیم؟', a:['فیلم و پتو 🎬','سفر یهویی 🚗','فقط حرف زدن تا صبح 🌙'], r:'یادم می‌مونه، قول 🤙' }
+  { q:'اگه یه روز کامل با هم باشیم؟', a:['فیلم دیدن 🎬','سفر رفتن 🚗','گیم زدن 🎮'], r:'یادم می‌مونه، قول 🤙' }
 ];
 /* ====================================== */
 
@@ -297,10 +298,19 @@ function loop(){
 function endGame(){
   playing=false; clearInterval(spawner); clearInterval(clock);
   drops.forEach(o=>o.el.remove()); drops=[];
-  if(score>=12){ burst(40); $('startGame').classList.add('hidden'); $('next5').classList.remove('hidden'); $('timer').textContent='آفرین 🤍'; }
-  else { $('startGame').textContent='یه بار دیگه 😅'; $('startGame').classList.remove('hidden'); }
+  game.classList.add('hidden'); $('fate').classList.remove('hidden');
+  if(score>=12){
+    burst(40); $('fateImg').src='alive.jpg';
+    $('fateText').textContent=`${score} تا قلب! نجاتم دادی، زنده‌م 🥳🤍`;
+    $('startGame').classList.add('hidden'); $('next5').classList.remove('hidden');
+  } else {
+    $('fateImg').src='dead.jpg';
+    $('fateText').textContent=`فقط ${score} تا... مُردم 👻 یه بار دیگه نجاتم بده!`;
+    $('startGame').textContent='زنده‌م کن 🙏'; $('startGame').classList.remove('hidden');
+  }
 }
 $('startGame').onclick=()=>{
+  $('fate').classList.add('hidden'); game.classList.remove('hidden');
   score=0; $('score').textContent=0; let t=25; $('timer').textContent=t;
   $('startGame').classList.add('hidden'); playing=true;
   spawner=setInterval(spawnDrop,550);
